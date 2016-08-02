@@ -9,6 +9,7 @@ int		detect_circle(Mat src, Mat src_gray);
 
 int main( int argc, char** argv )
 {
+		char key;
 		VideoCapture cap(1); //capture the video from web cam
 
 		if ( !cap.isOpened() )  // if not success, exit program
@@ -58,6 +59,8 @@ int main( int argc, char** argv )
 
 				inRange(imgHSV, Scalar(iLowH, iLowS, iLowV), Scalar(iHighH, iHighS, iHighV), imgThresholded); //Threshold the image
 
+
+/*
 				//morphological opening (remove small objects from the foreground)
 				erode(imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
 				dilate( imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) ); 
@@ -65,13 +68,15 @@ int main( int argc, char** argv )
 				//morphological closing (fill small holes in the foreground)
 				dilate( imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) ); 
 				erode(imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
+*/
 
 				imshow("Thresholded Image", imgThresholded); //show the thresholded image
 				imshow("Original", imgOriginal); //show the original image
 
-				detect_circle(imgOriginal, imgThresholded);
+//				detect_circle(imgOriginal, imgThresholded);
 				
-				if (waitKey(30) == 27) //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
+				key = waitKey(30);
+				if (key == 27 || key == 'q' || key == 'Q') //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
 				{
 						cout << "esc key is pressed by user" << endl;
 						break; 
@@ -89,7 +94,7 @@ int		detect_circle(Mat src, Mat src_gray)
 		{ return -1; }
 
 		/// Convert it to gray
-	//	cvtColor( src, src_gray, CV_BGR2GRAY );
+		cvtColor( src, src_gray, CV_BGR2GRAY );
 
 		/// Reduce the noise so we avoid false circle detection
 		GaussianBlur( src_gray, src_gray, Size(9, 9), 2, 2 );
