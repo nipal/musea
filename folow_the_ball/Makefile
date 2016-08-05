@@ -1,11 +1,27 @@
+.PHONY: clean fclean re 
+NAME = folowing
+FLAGS = -Wall -Wextra -Werror
+S =		folowing.cpp\
+		draw_ball_path.cpp\
+		detection.cpp	
 
-NAME="folowing"
+SRC = $(addprefix srcs/,$(S))
+OBJ= $(S:.cpp=.o)
 
-all:
-	g++ -c $(NAME).cpp -Wall `pkg-config opencv --cflags`
-	g++ $(NAME).o -o $(NAME) `pkg-config opencv --libs`
+all: $(NAME)
+
+$(NAME): 
+	g++  -c $(SRC) -I includes `pkg-config opencv --cflags`
+	g++  $(OBJ) -o $(NAME) `pkg-config opencv --libs`
+
+	
 
 clean:
-	rm -f $(NAME).o
+	rm -f $(OBJ)
+
 fclean: clean
-	rm -f $(NAME)
+	rm -f $(NAME) 
+
+re: fclean $(NAME)
+
+

@@ -1,25 +1,52 @@
-#include <iostream>
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
+#include "folowing.hpp"
 
-using namespace cv;
-using namespace std;
 
-void	detect_surface(Mat imgThresholded)
+
+void	segfault_test(Mat img)
 {
-		for (int j = 0; j < imgThresholded.cols; j ++)
+	int i = 0;
+
+	while (i < img.cols * img.rows)
+	{
+		if (img.data[i] != 0)
 		{
-			for (int i = 0; i < imgThresholded.rows * 3; i+= 3)
-			{
-				
-			}
+			img.data[i]= 70;
+			cout << "	" << (int)img.data[i] ;//(int)img.data[i];
 		}
+//		img.data[i] = 100;
+//		cout << "i:	" << i;
+		++i;
+	}
+//	imshow("Grey Image", img); //show the thresholded image
+
+}
+
+void	Mat_tostring(Mat img)
+{
+				cout << "=================================================================================" << endl; 
+				cout << "flags:	" << img.flags << endl;
+				cout << "dims:	" << img.dims << endl;
+				cout << "rows:	" << img.rows << endl;
+				cout << "cols:	" << img.cols << endl;
+				cout << "size:	" << img.size << endl;
+				cout << "=================================================================================" << endl; 
 }
 
 int main( int argc, char** argv )
 {
-		char key;
-		VideoCapture cap(1); //capture the video from webcam
+		bool			first = true;
+		t_surface		*new_ball = NULL;
+		t_surface		*old_ball = NULL;
+		int				nb_bal = 0;
+		char			key;
+		VideoCapture	cap(1); //capture the video from webcam
+		int				iLowH	= 40;
+		int 			iHighH	= 83;
+		int 			iLowS	= 67; 
+		int 			iHighS	= 255;
+		int 			iLowV	= 81;
+		int 			iHighV	= 255;
+
 
 		if ( !cap.isOpened() )  // if not success, exit program
 		{
@@ -28,15 +55,7 @@ int main( int argc, char** argv )
 		}
 
 		namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control"
-
-		int iLowH = 40;
-		int iHighH = 83;
-
-		int iLowS = 67; 
-		int iHighS = 255;
-
-		int iLowV = 81;
-		int iHighV = 255;
+//		namedWindow("Grey Image", CV_WINDOW_AUTOSIZE); //create a window called "Control"
 
 		//Create trackbars in "Control" window
 		createTrackbar("LowH", "Control", &iLowH, 179); //Hue (0 - 179)
@@ -88,6 +107,7 @@ int main( int argc, char** argv )
 				dilate( imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) ); 
 				erode(imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
 
+/*
 				//Calculate the moments of the thresholded image
 				Moments oMoments = moments(imgThresholded);
 
@@ -95,13 +115,6 @@ int main( int argc, char** argv )
 				double dM10 = oMoments.m10;
 				double dArea = oMoments.m00;
 
-				cout << "=================================================================================" << endl; 
-				cout << "flags:	" << imgThresholded.flags << endl;
-				cout << "dims:	" << imgThresholded.dims << endl;
-				cout << "rows:	" << imgThresholded.rows << endl;
-				cout << "cols:	" << imgThresholded.cols << endl;
-				cout << "size:	" << imgThresholded.size << endl;
-				cout << "=================================================================================" << endl; 
 //				cout << imgThresholded << endl;	
 //				cout << "dArea" << dArea << endl;
 				// if the area <= 10000, I consider that the there are no object in the image and it's because of the noise, the area is not zero 
@@ -120,11 +133,27 @@ int main( int argc, char** argv )
 						iLastX = posX;
 						iLastY = posY;
 				}
-
+//*/
 				imshow("Thresholded Image", imgThresholded); //show the thresholded image
 
+			//	segfault_test(imgThresholded);
+				new_ball =  detect_surface(imgThresholded, &nb_bal);
+
+				//	Ici il faut redefinir les id, sauf pour lepremier passage
+				if (!first && new_ball)
+				{
+					redefine_id(new_ball, old_ball, nb_bal);
+					draw_lines(new_ball, old_ball, nb_bal, &imgLines);
+					free(old_ball);
+					old_ball = new_ball;
+				}
+				old_ball = new_ball;
+				//	puis desiner les lignes avec des couleur differente
+				//	on pourait aussi juste sesiner le squelette
 				imgOriginal = imgOriginal + imgLines;
 				imshow("Original", imgOriginal); //show the original image
+				
+
 
 				key = waitKey(30);
 				if (key == 27) //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
@@ -132,6 +161,8 @@ int main( int argc, char** argv )
 						cout << "esc key is pressed by user" << endl;
 						break; 
 				}
+				if (nb_bal > 1)
+					first = false;
 		}
 
 		return 0;
