@@ -40,11 +40,11 @@ int main( int argc, char** argv )
 		int				nb_bal = 0;
 		char			key;
 		VideoCapture	cap(1); //capture the video from webcam
-		int				iLowH	= 40;
+		int				iLowH	= 50;
 		int 			iHighH	= 83;
 		int 			iLowS	= 67; 
 		int 			iHighS	= 255;
-		int 			iLowV	= 81;
+		int 			iLowV	= 57;
 		int 			iHighV	= 255;
 
 
@@ -137,7 +137,7 @@ int main( int argc, char** argv )
 				imshow("Thresholded Image", imgThresholded); //show the thresholded image
 
 			//	segfault_test(imgThresholded);
-				new_ball =  detect_surface(imgThresholded, &nb_bal);
+				new_ball =  detect_surface_v2(imgThresholded, &nb_bal);
 
 				//	Ici il faut redefinir les id, sauf pour lepremier passage
 				if (!first && new_ball)

@@ -16,7 +16,7 @@ void	redefine_id( t_surface *new_ball, t_surface *old_ball, int nb_bal)
 		{
 			if (new_ball[j].size > MIN_SIZE && old_ball[i].size > MIN_SIZE)
 			{
-				distance[j][i] = sqrt((new_ball[j].x - old_ball[i].x) * (new_ball[j].x - old_ball[i].x) + (new_ball[j].y - old_ball[i].y) * (new_ball[j].y - old_ball[i].y));
+				distance[j][i] = sqrt(((new_ball[j].x - old_ball[i].x) * (new_ball[j].x - old_ball[i].x)) + ((new_ball[j].y - old_ball[i].y) * (new_ball[j].y - old_ball[i].y)));
 				if (distance[j][i] < min)
 				{
 					min = distance[j][i];
@@ -41,6 +41,7 @@ void	draw_lines(t_surface *new_ball, t_surface *old_ball, int nb_bal, Mat *img)
 	int lastX;
 	int	lastY;
 
+	cout << "======================================================================" << endl;
 	for (int i = 0; i < MAX_BALL; ++i)
 	{
 		if (new_ball[i].size > MIN_SIZE)
@@ -49,6 +50,10 @@ void	draw_lines(t_surface *new_ball, t_surface *old_ball, int nb_bal, Mat *img)
 			lastX = old_ball[id].x;
 			lastY = old_ball[id].y;
 			line(*img, Point(new_ball[i].x, new_ball[i].y), Point(lastX, lastY), Scalar(0,255 - ((255 * (i))/ MAX_BALL),(255 * (i))/ MAX_BALL), 2);
+			cout << "" << endl;
+			cout << "	newX:" << new_ball[i].x << "	newY:" << new_ball[i].y << "	size:" << new_ball[i].size << endl;
+			cout << "	oldX:" << old_ball[id].x << "	oldY:" << old_ball[id].y <<  "	size:" << old_ball[id].size << endl;
+			cout << "*********************************************************************" << endl;
 		}
 	}
 	//	on atribu une couleur par deplacement de ball
