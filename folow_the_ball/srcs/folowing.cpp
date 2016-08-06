@@ -35,9 +35,9 @@ void	Mat_tostring(Mat img)
 int main( int argc, char** argv )
 {
 		bool			first = true;
-		t_surface		*new_ball = NULL;
-		t_surface		*old_ball = NULL;
-		int				nb_bal = 0;
+		t_centre		*new_ball = NULL;
+		t_centre		*old_ball = NULL;
+		int				nb_ball = 0;
 		char			key;
 		VideoCapture	cap(1); //capture the video from webcam
 		int				iLowH	= 50;
@@ -137,15 +137,20 @@ int main( int argc, char** argv )
 				imshow("Thresholded Image", imgThresholded); //show the thresholded image
 
 			//	segfault_test(imgThresholded);
-				new_ball =  detect_surface_v2(imgThresholded, &nb_bal);
+				new_ball =  detect_surface_v2(imgThresholded, &nb_ball);
 
 				//	Ici il faut redefinir les id, sauf pour lepremier passage
-				if (!first && new_ball)
+				if (!first)
 				{
-					redefine_id(new_ball, old_ball, nb_bal);
-					draw_lines(new_ball, old_ball, nb_bal, &imgLines);
+//					cout << "On est AL !!!!!!!!!!!!!!!!" << endl;
+					redefine_id(new_ball, old_ball, nb_ball);
+//					cout << "houhou 1" << endl;
+					draw_lines(new_ball, old_ball, nb_ball, &imgLines);
+//					cout << "houhou 2" << endl;
+				}
+				if (old_ball)
+				{
 					free(old_ball);
-					old_ball = new_ball;
 				}
 				old_ball = new_ball;
 				//	puis desiner les lignes avec des couleur differente
@@ -161,7 +166,8 @@ int main( int argc, char** argv )
 						cout << "esc key is pressed by user" << endl;
 						break; 
 				}
-				if (nb_bal > 1)
+//				cout << "nb_ball:" << nb_ball << endl;
+				if (nb_ball > 0)
 					first = false;
 		}
 

@@ -1,7 +1,7 @@
 #ifndef FOLOWING_HPP 
 
  #define FOLOWING_HPP
- #define MAX_BALL  10
+ #define MAX_BALL  20
  #define SIZE_BALL 100
  #define MIN_SIZE  10
  #include <iostream>
@@ -29,10 +29,11 @@ typedef struct	s_centre
 	long	sum_x = 0;
 	long	sum_y = 0;
 	int		size  = 0;
+	int		id	  = 0;
 }				t_centre;
 
-t_surface	*detect_surface_v2(Mat img, int *nb_balls);
+t_centre	*detect_surface_v2(Mat img, int *nb_balls);
 t_surface	*detect_surface(Mat img, int *nb_balls);
-void		redefine_id( t_surface *new_ball, t_surface *old_ball, int nb_bal);
-void		draw_lines(t_surface *new_ball, t_surface *old_ball, int nb_bal, Mat *img);
+void		redefine_id( t_centre *new_ball, t_centre *old_ball, int nb_bal);
+void		draw_lines(t_centre *new_ball, t_centre *old_ball, int nb_bal, Mat *img);
 #endif

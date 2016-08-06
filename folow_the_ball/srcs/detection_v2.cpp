@@ -10,7 +10,6 @@ Point	*list_valid_point(Mat img, int *nb_point)
 {
 	int		id				= 0;
 	int		size			= img.cols * img.rows;
-//	Point	dim				= new Point(img.cols, img.rows);
 	Point	*list_pt 	= (Point*)malloc(sizeof(double) * size);
 
 	bzero(list_pt, size * sizeof(Point));
@@ -19,7 +18,7 @@ Point	*list_valid_point(Mat img, int *nb_point)
 	{
 		if (img.data[i] == 255)
 		{
-			list_pt[id] = Point((double)(i % img.cols), (double)(i / img.rows));
+			list_pt[id] = Point((double)(i % img.cols), (double)(i / img.cols));
 			id++;
 		}
 	}
@@ -27,7 +26,7 @@ Point	*list_valid_point(Mat img, int *nb_point)
 	return (list_pt);
 }
 
-int			id_zone(int x, int y, t_centre* zone)
+int			sort_zone(int x, int y, t_centre* zone)
 {
 	int		first_id = -1;
 	int		min_id = -1;
@@ -40,8 +39,6 @@ int			id_zone(int x, int y, t_centre* zone)
 	{
 		if (zone[i].size > 0)
 		{
-//			cout << "zone.x:" << (zone[i].sum_x / zone[i].size);
-//			cout << " zone.y:" << (zone[i].sum_y / zone[i].size) << endl;
 			diff_x = (zone[i].sum_x / zone[i].size) - x;
 			diff_y = (zone[i].sum_y / zone[i].size) - y;
 			dist = sqrt((diff_x * diff_x + diff_y * diff_y));
@@ -55,93 +52,49 @@ int			id_zone(int x, int y, t_centre* zone)
 		{
 			first_id = i;
 		}
-//		cout << "i:" << i;
 	}
-//	cout << endl << "x:" << x << "	y:" << y << endl;
-//	cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << endl;
-	//cout << "min_dist:" << min_dist << "	min_id:" << min_id <<"	first_id:" << first_id << endl;
-//	cout <<  "	min_id:" << min_id <<"	first_id:" << first_id << endl;
-//	cout << "min dist:"<< min_dist << endl;
 	if (min_dist < SIZE_BALL && min_dist > 0)
 	{
 		zone[min_id].sum_x += x;
 		zone[min_id].sum_y += y;
 		zone[min_id].size++;
-//		cout << "zone:" << min_id  << "	min_dist:" << min_dist  << endl;
 	}
 	else if (first_id != -1)
 	{
-//		cout << "zone:" << first_id << endl;
 		zone[first_id].sum_x = x;
 		zone[first_id].sum_y = y;
-		zone[first_id].size = 1;	
+		zone[first_id].size = 1;
+		zone[first_id].id = first_id;	
 	}
 	else
 	{
-//		cout << "(((((((((((((((((((((((((((   -->  no more space <--  )))))))))))))))))))))))))))" << endl;
+		cout << "(((((((((((((((((((((((((((   -->  no more space <--  )))))))))))))))))))))))))))" << endl;
 	}
 	return (0);
 }
 
-t_surface	*detect_surface_v2(Mat img, int *nb_balls)
+t_centre	*detect_surface_v2(Mat img, int *nb_balls)
 {
-	long		dist_moy = 0;
-	long		nb_moy = 0;
-
-	long		dist_max = 0;
-	long		nb_max = 0;
-
 	t_centre	*zone		= (t_centre*)malloc(MAX_BALL * sizeof(t_centre));
 	int			nb_point;
 	int			id 			= 0;
-	int			size		= img.cols * img.rows;
 	Point		*lst 		= list_valid_point(img, &nb_point);
-	double	prevX, prevY, newX, newY, dist;	
-//	on vafaire une liste de centre	
+	//	on vafaire une liste de centre	
 
 	bzero(zone, MAX_BALL * sizeof(t_centre));
-	cout << "=================================================" << endl; 
+//	cout << "=================================================" << endl; 
 	*nb_balls = 0;
 	for (int i = 0; i < nb_point; ++i)
 	{
-		//	On va calculer la distance a tout les centre avec: size > 0
-		//	on prend le plus petit < SIZE_BALL
-
-
-		id_zone(lst[i].x, lst[i].y, zone);	
-/*
-		newX = lst[i].x;
-		newY = lst[i].y;
-		if (i > 0)
+		//	Pour chaque point on lui attribut une zone enfonction de sa distance a celle-ci
+		sort_zone(lst[i].x, lst[i].y, zone);	
+	}
+	for (int i = 0; i < MAX_BALL; ++i)
+	{
+		if (zone[i].size > 0)
 		{
-			dist = sqrt(((newX - prevX) * (newX - prevX) + (newY - prevY) * (newY - prevY)));
-			if (dist < SIZE_BALL && dist > 1)
-			{
-				dist_moy += dist;
-				nb_moy += 1;
-	//			cout << "x:" << newX << "	y:" << newY << "	dist:" << dist << endl; 
-			}
-			else if (dist > SIZE_BALL)
-			{
-				dist_max += dist;
-				nb_max += 1;
-			}
+			*nb_balls += 1;
 		}
-
-
-		prevX = newX;
-		prevY = newY;
-//*/
 	}
-/*
-	if (nb_moy > 0)
-	{
-		cout << "dist_moy:" << (dist_moy / nb_moy) << endl;
-	}
-	if (nb_max > 0)
-	{
-		cout << "dist_moy:" << (dist_max / nb_max) << endl;
-	}
-//*/
-	return (NULL); 
+	return (zone); 
 }
