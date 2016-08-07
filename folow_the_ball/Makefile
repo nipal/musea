@@ -2,6 +2,7 @@ NAME = folowing
 FLAGS = -Wall -Wextra -Werror
 S =		folowing.cpp \
 		draw_ball_path.cpp \
+		calcule_distance.cpp \
 		detection_v2.cpp 	
 
 

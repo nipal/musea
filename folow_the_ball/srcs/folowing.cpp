@@ -143,7 +143,8 @@ int main( int argc, char** argv )
 				if (!first)
 				{
 //					cout << "On est AL !!!!!!!!!!!!!!!!" << endl;
-					redefine_id(new_ball, old_ball, nb_ball);
+//					redefine_id(new_ball, old_ball, nb_ball);
+					swap_new(new_ball, old_ball);
 //					cout << "houhou 1" << endl;
 					draw_lines(new_ball, old_ball, nb_ball, &imgLines);
 //					cout << "houhou 2" << endl;
