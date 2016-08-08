@@ -136,6 +136,7 @@ void	swap_old(t_centre *new_ball, t_centre *old_ball)
 	int			id_swap;
 	t_centre	swap;
 
+//	cout << "------------------------------------------------" << endl;
 	for (int i = 0; i < MAX_BALL; i++)
 	{
 		if (new_ball[i].size > 0)
@@ -143,6 +144,7 @@ void	swap_old(t_centre *new_ball, t_centre *old_ball)
 			id_swap = id_to_swap_old(new_ball, old_ball, i);
 			if (id_swap >= 0 && i != id_swap)
 			{
+//				cout << "swaping: " << i << " and " << id_swap << endl; 
 				swap = old_ball[i];
 				old_ball[i] = old_ball[id_swap];
 				old_ball[id_swap] = swap;
@@ -156,7 +158,7 @@ void	swap_new(t_centre *new_ball, t_centre *old_ball)
 	int			id_swap;
 	t_centre	swap;
 
-	cout << "------------------------------------------------" << endl;
+//	cout << "------------------------------------------------" << endl;
 	for (int i = 0; i < MAX_BALL; i++)
 	{
 		if (old_ball[i].size > 0)
@@ -164,7 +166,7 @@ void	swap_new(t_centre *new_ball, t_centre *old_ball)
 			id_swap = id_to_swap_new(new_ball, old_ball, i);
 			if (id_swap >= 0 && i != id_swap)
 			{
-				cout << "swaping: " << i << " and " << id_swap << endl; 
+//				cout << "swaping: " << i << " and " << id_swap << endl; 
 				swap = new_ball[i];
 				new_ball[i] = new_ball[id_swap];
 				new_ball[id_swap] = swap;

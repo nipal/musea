@@ -96,5 +96,28 @@ t_centre	*detect_surface_v2(Mat img, int *nb_balls)
 			*nb_balls += 1;
 		}
 	}
+//	describe_zone(zone, *nb_balls);
+	free(lst);
 	return (zone); 
+}
+
+void	describe_zone(t_centre *zone, int nb_ball)
+{
+	long x, y;
+	cout << "________________________________________________" << endl;
+	cout << "MAX_BALL:" << MAX_BALL << "	nb_ball:" << nb_ball << endl; 
+	for (int i = 0; i < MAX_BALL; i++)
+	{
+		if (zone[i].size > 0)
+		{
+			x = zone[i].sum_x / zone[i].size;
+			y = zone[i].sum_y / zone[i].size;
+		}
+		else
+		{
+			x = -1;
+			y = -1;
+		}
+		cout << "zone:" << i << "	x:" << x << "	y:" << y << "	size:" << zone[i].size << endl;	
+	}
 }

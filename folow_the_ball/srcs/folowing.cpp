@@ -32,6 +32,12 @@ void	Mat_tostring(Mat img)
 				cout << "=================================================================================" << endl; 
 }
 
+void	line_reset(Mat *img, Mat imgTmp)
+{
+	(*img).release();
+	*img = Mat::zeros( imgTmp.size(), CV_8UC3 );
+}
+
 int main( int argc, char** argv )
 {
 		bool			first = true;
@@ -75,7 +81,7 @@ int main( int argc, char** argv )
 		cap.read(imgTmp); 
 
 		//Create a black image with the size as the camera output
-		Mat imgLines = Mat::zeros( imgTmp.size(), CV_8UC3 );;
+		Mat imgLines = Mat::zeros( imgTmp.size(), CV_8UC3 );
 
 
 		while (true)
@@ -134,7 +140,6 @@ int main( int argc, char** argv )
 						iLastY = posY;
 				}
 //*/
-				imshow("Thresholded Image", imgThresholded); //show the thresholded image
 
 			//	segfault_test(imgThresholded);
 				new_ball =  detect_surface_v2(imgThresholded, &nb_ball);
@@ -157,19 +162,27 @@ int main( int argc, char** argv )
 				//	puis desiner les lignes avec des couleur differente
 				//	on pourait aussi juste sesiner le squelette
 				imgOriginal = imgOriginal + imgLines;
+				imshow("Thresholded Image", imgThresholded); //show the thresholded image
 				imshow("Original", imgOriginal); //show the original image
 				
 
 
-				key = waitKey(30);
+				key = waitKey(15);
 				if (key == 27) //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
 				{
 						cout << "esc key is pressed by user" << endl;
 						break; 
 				}
+				else if (key == 'r' || key == 'R')
+				{
+					line_reset(&imgLines, imgTmp);
+				}
 //				cout << "nb_ball:" << nb_ball << endl;
 				if (nb_ball > 0)
 					first = false;
+				imgOriginal.release();
+				imgThresholded.release();
+				imgHSV.release();
 		}
 
 		return 0;
