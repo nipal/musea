@@ -1,5 +1,32 @@
 #include "folowing.hpp"
 
+//	On envoiune position et on retourne l'id de la zne laplus proche
+int	closer_zone(int x, int y, t_centre *zone)
+{
+	int	dx, dy, id;
+	double	min, dist;
+
+	min = 100000;
+	id = -1;
+//	cout << "haha" << endl;
+	for (int i = 0; i < MAX_BALL; i++)
+	{
+//		cout << "i:" << i << endl;
+		if (zone[i].size > 0)
+		{
+			dx = x - (zone[i].sum_x / zone[i].size);
+			dy = y - (zone[i].sum_y / zone[i].size);
+			dist = sqrt(dx * dx + dy * dy);
+			if (dist < min)
+			{
+				id = i;
+				min = dist;
+			}
+		}
+	}
+	return (id);
+}
+
 //	On calcule la plus petite distance avec les old_ball et on renvoie l'id
 int	id_to_swap_old(t_centre *new_ball, t_centre *old_ball, int id_new)
 {

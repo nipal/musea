@@ -1,10 +1,6 @@
-NAME = folowing
+NAME = open_dir
 FLAGS = -Wall -Wextra -Werror
-S =		folowing.cpp \
-		draw_ball_path.cpp \
-		calcule_distance.cpp \
-		draw_body.cpp \
-		detection_v2.cpp 	
+S =		main.cpp 
 
 
 SRC = $(addprefix srcs/,$(S))

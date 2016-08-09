@@ -10,6 +10,7 @@
  #include <math.h>
  #include <stdio.h>
  #include <string.h>
+ #include <typeinfo>
 
 using namespace cv;
 using namespace std;
@@ -32,8 +33,17 @@ typedef struct	s_centre
 	int		id	  = 0;
 }				t_centre;
 
+typedef	struct	s_body_data
+{
+	cv::Size	size;
+	t_centre	*zone;
+	Mat			*img;
+}				t_body_data;
+
 //	calcule_distance.cpp
 //	on a juste besoin d'appeler swap_old ou swap_new, ils'ocupe du renste
+void CallBackFunc(int event, int x, int y, int flags, void* userdata);
+int	closer_zone(int x, int y, t_centre *zone);
 int		id_to_swap_old(t_centre *new_ball, t_centre *old_ball, int id_new);
 int		id_to_swap_new(t_centre *new_ball, t_centre *old_ball, int id_old);
 double	*calcul_dist_to_old(t_centre *new_ball, t_centre *old_ball, int id_new);

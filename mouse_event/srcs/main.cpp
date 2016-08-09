@@ -6,6 +6,7 @@ using namespace cv;
 
 void CallBackFunc(int event, int x, int y, int flags, void* userdata)
 {
+	
      if  ( event == EVENT_LBUTTONDOWN )
      {
           cout << "Left button of the mouse is clicked - position (" << x << ", " << y << ")" << endl;
