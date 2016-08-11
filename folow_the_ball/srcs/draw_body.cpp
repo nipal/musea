@@ -2,8 +2,39 @@
 
 //	on fait un fonction qui sauvgarde les liens
 //	on lui envoie deus id et la matrice de conexion
-int	make_conexion(int id1, int id2)
+void	make_conexion(int id1, int id2)
 {
+	Mat *link = get_connexion(NULL);
+
+	//si les indice ne sont pas bon on quit tout de suite
+	if (id1 < 0 || id2 < 0)
+	{
+		cerr << "ERROR negativ id:	id1-->" << id1 << ", " << id2  << endl;
+		return;
+	}
+	if (id1 >= MAX_BALL || id2 >= MAX_BALL)
+	{
+		cerr << "ERROR out of range:	id1-->" << id1 << "	id2-->" << id2  << endl;
+		return;
+	}
+	if (id1 == id2)
+	{
+		cerr << "ERROR	same id	id1-->"<< id1 << "	id2-->" << id2  << endl;
+		return;
+	}
+	//	on regarde 
+	if (link->data[id1 + MAX_BALL * id2] == 1|| link->data[id2 + MAX_BALL * id1] == 1)
+	{
+		//	on met tout a 0
+		link->data[id2 + MAX_BALL * id1] == 0;
+		link->data[id1 + MAX_BALL * id2] == 0;
+	}
+	else
+	{
+		// on les met a 1
+		link->data[id2 + MAX_BALL * id1] == 1;
+		link->data[id1 + MAX_BALL * id2] == 1;
+	}
 }
 
 void CallBackFunc(int event, int x, int y, int flags, void* userdata)
@@ -32,6 +63,7 @@ void CallBackFunc(int event, int x, int y, int flags, void* userdata)
 			{
 				first = !first;
 				id2 = closer_zone(x, y, data->zone);
+				
 			}
 		}
 		else

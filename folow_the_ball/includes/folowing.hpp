@@ -2,7 +2,7 @@
 
  #define FOLOWING_HPP
  #define MAX_BALL  20
- #define SIZE_BALL 100
+ #define SIZE_BALL 50
  #define MIN_SIZE  10
  #include <iostream>
  #include "opencv2/highgui/highgui.hpp"
@@ -51,7 +51,9 @@ double	*calcul_dist_to_new(t_centre *new_ball, t_centre *old_ball, int id_old);
 void	swap_old(t_centre *new_ball, t_centre *old_ball);
 void	swap_new(t_centre *new_ball, t_centre *old_ball);
 
-
+//singleton
+Mat	*get_connexion(Mat *data);
+cv::Size	*get_imgSIze(cv::Size *data);
 
 void	describe_zone(t_centre *zone, int nb_ball);
 

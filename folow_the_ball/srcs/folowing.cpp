@@ -19,21 +19,60 @@ void	line_reset(Mat *img, Mat imgTmp)
 	*img = Mat::zeros( imgTmp.size(), CV_8UC3 );
 }
 
+//	il faut aussi faire une fonction pour recuperer la taille d'une image;
+cv::Size	*get_imgSIze(cv::Size *data)
+{
+	static cv::Size *size = NULL;
+
+	if (size == NULL)
+	{
+		
+	}
+	if (data != NULL)
+	{
+		size = data;
+	}
+	return (size);
+}
+
+
+/*
+
+	cv:Size toto = cv::Size(3, 4);
+	cout << "size:" << toto<< endl;
+*/
+//	On peut initialiser les 
+Mat	*get_connexion(Mat *data)
+{
+	static Mat *connexion = NULL;
+/*
+	if (connexion == NULL)
+	{
+		connexion = &(Mat::zeros(cv::Size(MAX_BALL, MAX_BALL), CV_8UC3 ));
+	}
+*/
+	if (data != NULL)
+	{
+		connexion = data;
+	}
+	return (connexion);
+}
+
 int main( int argc, char** argv )
 {
-	Mat			conexion;
+	Mat			link;
 	t_body_data	data;
 	bool		first = true;
 	t_centre	*new_ball = NULL;
 	t_centre	*old_ball = NULL;
-	int		nb_ball = 0;
+	int			nb_ball = 0;
 	char		key;
 	VideoCapture	cap(1); //capture the video from webcam
-	int		iLowH	= 50;
-	int 		iHighH	= 83;
+	int			iLowH	= 50;
+	int 		iHighH	= 90;
 	int 		iLowS	= 67; 
 	int 		iHighS	= 255;
-	int 		iLowV	= 57;
+	int 		iLowV	= 90;
 	int 		iHighV	= 255;
 
 
@@ -44,7 +83,7 @@ int main( int argc, char** argv )
 	}
 
 
-    conexion = (Mat_<bool>(MAX_BALL,MAX_BALL));
+    //conexion = (Mat_<bool>(MAX_BALL,MAX_BALL));
 
 
 	namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control"
@@ -73,6 +112,12 @@ int main( int argc, char** argv )
 	//Create a black image with the size as the camera output
 	Mat imgLines = Mat::zeros( imgTmp.size(), CV_8UC3 );
 
+	//	initialisation de la matrice de connexion
+	link = Mat::zeros(cv::Size(MAX_BALL, MAX_BALL), CV_8UC3 );
+	get_connexion(&link);
+
+
+//	Mat connexion = Mat::zeros( imgTmp.size(), CV_8UC3 );
 
 	while (true)
 	{
@@ -156,3 +201,8 @@ int main( int argc, char** argv )
 
 	return 0;
 }
+
+/*
+On a un singleton qui donne acces alamatrice de connexion
+a terme il faudrait faire une interface pour lancer les fenetre
+*/
