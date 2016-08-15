@@ -1,4 +1,19 @@
 #include "folowing.hpp"
+ #include "SineWave.h"
+ #include "RtAudio.h"
+ using namespace stk;
+ // This tick() function handles sample computation only.  It will be
+ // called automatically when the system needs a new buffer of audio
+ // samples.
+ int tick( void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
+         double streamTime, RtAudioStreamStatus status, void *dataPointer )
+ {
+   SineWave *sine = (SineWave *) dataPointer;
+   register StkFloat *samples = (StkFloat *) outputBuffer;
+   for ( unsigned int i=0; i<nBufferFrames; i++ )
+     *samples++ = sine->tick();
+   return 0;
+ }
 
 
 
@@ -24,10 +39,6 @@ cv::Size	*get_imgSIze(cv::Size *data)
 {
 	static cv::Size *size = NULL;
 
-	if (size == NULL)
-	{
-		
-	}
 	if (data != NULL)
 	{
 		size = data;
@@ -36,21 +47,11 @@ cv::Size	*get_imgSIze(cv::Size *data)
 }
 
 
-/*
-
-	cv:Size toto = cv::Size(3, 4);
-	cout << "size:" << toto<< endl;
-*/
 //	On peut initialiser les 
 Mat	*get_connexion(Mat *data)
 {
 	static Mat *connexion = NULL;
-/*
-	if (connexion == NULL)
-	{
-		connexion = &(Mat::zeros(cv::Size(MAX_BALL, MAX_BALL), CV_8UC3 ));
-	}
-*/
+
 	if (data != NULL)
 	{
 		connexion = data;
@@ -58,23 +59,28 @@ Mat	*get_connexion(Mat *data)
 	return (connexion);
 }
 
-int main( int argc, char** argv )
+int main(void)
 {
-	Mat			link;
-	t_body_data	data;
-	bool		first = true;
-	t_centre	*new_ball = NULL;
-	t_centre	*old_ball = NULL;
-	int			nb_ball = 0;
-	char		key;
+	Mat				link;
+	char			key;
+	t_body_data		data;
+	bool			first;
+	t_centre		*new_ball;
+	t_centre		*old_ball;
 	VideoCapture	cap(1); //capture the video from webcam
-	int			iLowH	= 50;
-	int 		iHighH	= 90;
-	int 		iLowS	= 67; 
-	int 		iHighS	= 255;
-	int 		iLowV	= 90;
-	int 		iHighV	= 255;
+	int nb_ball, iLowH,	iHighH, iLowS,	iHighS,	iLowV, iHighV;
 
+
+	first = true;
+	new_ball = NULL;
+	old_ball = NULL;
+	nb_ball = 0;
+	iLowH	= 50;
+	iHighH	= 90;
+	iLowS	= 67; 
+	iHighS	= 255;
+	iLowV	= 90;
+	iHighV	= 255;
 
 	if ( !cap.isOpened() )  // if not success, exit program
 	{
@@ -88,8 +94,8 @@ int main( int argc, char** argv )
 
 	namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control"
 	namedWindow("Thresholded Image", CV_WINDOW_AUTOSIZE); //create a window called "Control"
-	namedWindow("Test", CV_WINDOW_AUTOSIZE); //create a window called "Control"
-	//	namedWindow("Grey Image", CV_WINDOW_AUTOSIZE); //create a window called "Control"
+	namedWindow("Body", CV_WINDOW_AUTOSIZE); //create a window called "Control"
+	namedWindow("Grey Image", CV_WINDOW_AUTOSIZE); //create a window called "Control"
 
 
 	//Create trackbars in "Control" window
@@ -102,8 +108,6 @@ int main( int argc, char** argv )
 	createTrackbar("LowV", "Control", &iLowV, 255);//Value (0 - 255)
 	createTrackbar("HighV", "Control", &iHighV, 255);
 
-	int iLastX = -1; 
-	int iLastY = -1;
 
 	//Capture a temporary image from the camera
 	Mat imgTmp;
@@ -116,12 +120,40 @@ int main( int argc, char** argv )
 	link = Mat::zeros(cv::Size(MAX_BALL, MAX_BALL), CV_8UC3 );
 	get_connexion(&link);
 
+	setMouseCallback("Thresholded Image", CallBackFunc, &data);
+
 
 //	Mat connexion = Mat::zeros( imgTmp.size(), CV_8UC3 );
 
+  // Set the global sample rate before creating class instances.
+  Stk::setSampleRate( 96000.0 );
+  SineWave sine;
+  RtAudio dac;
+  // Figure out how many bytes in an StkFloat and setup the RtAudio stream.
+  RtAudio::StreamParameters parameters;
+  parameters.deviceId = dac.getDefaultOutputDevice();
+  parameters.nChannels = 1;
+  RtAudioFormat format = ( sizeof(StkFloat) == 8 ) ? RTAUDIO_FLOAT64 : RTAUDIO_FLOAT32;
+  unsigned int bufferFrames = RT_BUFFER_SIZE;
+  try {
+    dac.openStream( &parameters, NULL, format, (unsigned int)Stk::sampleRate(), &bufferFrames, &tick, (void *)&sine );
+  }
+  catch ( RtAudioError &error ) {
+    error.printMessage();
+    goto cleanup;
+  }
+  sine.setFrequency(440.0);
+  try {
+    dac.startStream();
+  }
+  catch ( RtAudioError &error ) {
+    error.printMessage();
+    goto cleanup;
+  }
 	while (true)
 	{
 		Mat imgOriginal;
+		Mat imgBody = Mat::zeros( imgTmp.size(), CV_8UC3 );
 
 		bool bSuccess = cap.read(imgOriginal); // read a new frame from video
 
@@ -141,21 +173,26 @@ int main( int argc, char** argv )
 		inRange(imgHSV, Scalar(iLowH, iLowS, iLowV), Scalar(iHighH, iHighS, iHighV), imgThresholded); //Threshold the image
 
 		//morphological opening (removes small objects from the foreground)
-		erode(imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
-		dilate( imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) ); 
+		erode(imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(PRECISION, PRECISION)) );
+		dilate( imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(PRECISION, PRECISION)) ); 
 
 		//morphological closing (removes small holes from the foreground)
-		dilate( imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) ); 
-		erode(imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
+		dilate( imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(PRECISION, PRECISION)) ); 
+		erode(imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(PRECISION, PRECISION)) );
 
 
+		//	Detection des zone blanche
 		new_ball =  detect_surface_v2(imgThresholded, &nb_ball);
 
+  sine.setFrequency(new_ball->sum_x / (new_ball->size + 1));
 		//	Ici il faut redefinir les id, sauf pour lepremier passage
 		if (!first)
 		{
+			//	continuite avec les ball precedente
 			swap_new(new_ball, old_ball);
+			//	on dessine les lignes
 			draw_lines(new_ball, old_ball, nb_ball, &imgLines);
+	//		losted_zone(new_ball, old_ball);
 		}
 		if (old_ball)
 		{
@@ -174,9 +211,11 @@ int main( int argc, char** argv )
 		data.size = imgThresholded.size();
 		data.zone = new_ball;
 		data.img  = &imgThresholded;
-		setMouseCallback("Thresholded Image", CallBackFunc, &data);
 
-		key = waitKey(20);
+		
+		draw_body(new_ball, &imgBody);
+		imshow("Body", imgBody); //show the thresholded image
+		key = waitKey(TIME_INTERVAL);
 		if (key == 27) //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
 		{
 			cout << "esc key is pressed by user" << endl;
@@ -198,9 +237,20 @@ int main( int argc, char** argv )
 		imgThresholded.release();
 		imgHSV.release();
 	}
+  // Shut down the output stream.
+  try {
+    dac.closeStream();
+  }
+  catch ( RtAudioError &error ) {
+    error.printMessage();
+  }
+  cleanup:
+  1;
+
 
 	return 0;
 }
+
 
 /*
 On a un singleton qui donne acces alamatrice de connexion

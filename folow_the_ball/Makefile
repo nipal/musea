@@ -1,5 +1,5 @@
 NAME = folowing
-FLAGS = -Wall -Wextra -Werror
+FLAGS = -Wall -Wextra #-Werror
 S =		folowing.cpp \
 		draw_ball_path.cpp \
 		calcule_distance.cpp \
@@ -13,8 +13,8 @@ OBJ= $(S:.cpp=.o)
 all: $(NAME)
 
 $(NAME): 
-	g++  -c $(SRC) -I includes `pkg-config opencv --cflags`
-	g++  $(OBJ) -o $(NAME) `pkg-config opencv --libs`
+	g++  -D__LINUX_ALSA__ -D__LITTLE_ENDIAN -c $(FLAGS) $(SRC) -I /usr/include/stk -I includes `pkg-config opencv --cflags`
+	g++  $(OBJ) -o $(NAME) `pkg-config opencv --libs` -lstk -lpthread -lasound /usr/lib/x86_64-linux-gnu/librtaudio.so.4v5
 
 	
 
