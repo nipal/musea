@@ -4,6 +4,7 @@ S =		folowing.cpp \
 		draw_ball_path.cpp \
 		calcule_distance.cpp \
 		draw_body.cpp \
+		sound.cpp \
 		detection_v2.cpp 	
 
 

@@ -1,21 +1,4 @@
 #include "folowing.hpp"
- #include "SineWave.h"
- #include "RtAudio.h"
- using namespace stk;
- // This tick() function handles sample computation only.  It will be
- // called automatically when the system needs a new buffer of audio
- // samples.
- int tick( void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
-         double streamTime, RtAudioStreamStatus status, void *dataPointer )
- {
-   SineWave *sine = (SineWave *) dataPointer;
-   register StkFloat *samples = (StkFloat *) outputBuffer;
-   for ( unsigned int i=0; i<nBufferFrames; i++ )
-     *samples++ = sine->tick();
-   return 0;
- }
-
-
 
 void	Mat_tostring(Mat img)
 {
@@ -61,6 +44,19 @@ Mat	*get_connexion(Mat *data)
 
 int main(void)
 {
+//	sound
+	my_stk_init();
+	RtWvOut	*dac = open_stream();
+	SineWave	sine[MAX_BALL];
+/*
+	if (!(sine = (SineWave*)malloc(sizeof(SineWave) * MAX_BALL)))
+	{
+		cerr << "Malloc error (on sine)!" << endl;
+		return (-1);
+	}
+*/
+//	bzero();
+
 	Mat				link;
 	char			key;
 	t_body_data		data;
@@ -69,6 +65,7 @@ int main(void)
 	t_centre		*old_ball;
 	VideoCapture	cap(1); //capture the video from webcam
 	int nb_ball, iLowH,	iHighH, iLowS,	iHighS,	iLowV, iHighV;
+	
 
 
 	first = true;
@@ -125,33 +122,10 @@ int main(void)
 
 //	Mat connexion = Mat::zeros( imgTmp.size(), CV_8UC3 );
 
-  // Set the global sample rate before creating class instances.
-  Stk::setSampleRate( 96000.0 );
-  SineWave sine;
-  RtAudio dac;
-  // Figure out how many bytes in an StkFloat and setup the RtAudio stream.
-  RtAudio::StreamParameters parameters;
-  parameters.deviceId = dac.getDefaultOutputDevice();
-  parameters.nChannels = 1;
-  RtAudioFormat format = ( sizeof(StkFloat) == 8 ) ? RTAUDIO_FLOAT64 : RTAUDIO_FLOAT32;
-  unsigned int bufferFrames = RT_BUFFER_SIZE;
-  try {
-    dac.openStream( &parameters, NULL, format, (unsigned int)Stk::sampleRate(), &bufferFrames, &tick, (void *)&sine );
-  }
-  catch ( RtAudioError &error ) {
-    error.printMessage();
-    goto cleanup;
-  }
-  sine.setFrequency(440.0);
-  try {
-    dac.startStream();
-  }
-  catch ( RtAudioError &error ) {
-    error.printMessage();
-    goto cleanup;
-  }
+
 	while (true)
 	{
+
 		Mat imgOriginal;
 		Mat imgBody = Mat::zeros( imgTmp.size(), CV_8UC3 );
 
@@ -184,7 +158,8 @@ int main(void)
 		//	Detection des zone blanche
 		new_ball =  detect_surface_v2(imgThresholded, &nb_ball);
 
-  sine.setFrequency(new_ball->sum_x / (new_ball->size + 1));
+	//	multi_sound();
+
 		//	Ici il faut redefinir les id, sauf pour lepremier passage
 		if (!first)
 		{
@@ -192,6 +167,8 @@ int main(void)
 			swap_new(new_ball, old_ball);
 			//	on dessine les lignes
 			draw_lines(new_ball, old_ball, nb_ball, &imgLines);
+			play_ball(dac, sine, new_ball);
+//play_some(dac);
 	//		losted_zone(new_ball, old_ball);
 		}
 		if (old_ball)
@@ -237,16 +214,9 @@ int main(void)
 		imgThresholded.release();
 		imgHSV.release();
 	}
-  // Shut down the output stream.
-  try {
-    dac.closeStream();
-  }
-  catch ( RtAudioError &error ) {
-    error.printMessage();
-  }
-  cleanup:
-  1;
-
+	
+//	close_sound(dac);
+//	free(sine);
 
 	return 0;
 }

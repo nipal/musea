@@ -2,7 +2,7 @@
  #define PRECISION 30 
  #define TIME_INTERVAL 10
  #define FOLOWING_HPP
- #define MAX_BALL  20
+ #define MAX_BALL  5
  #define SIZE_BALL 50
  #define MIN_SIZE  10
  #include <iostream>
@@ -12,9 +12,14 @@
  #include <stdio.h>
  #include <string.h>
  #include <typeinfo>
+ #include "SineWave.h"
+ #include "RtAudio.h"
+ #include "RtWvOut.h"
+ #include <cstdlib>
 
 using namespace cv;
 using namespace std;
+using namespace stk;
 
 //void	detect_surface(Mat img);
 
@@ -49,6 +54,12 @@ typedef	struct	s_conex
 	struct	s_conex 	*next;
 }				t_conex;
 
+//sound
+void	play_ball(RtWvOut *dac, SineWave sine[MAX_BALL], t_centre *zone);
+void	my_stk_init();
+void	play_some(RtWvOut *dac);
+RtWvOut	*open_stream();
+
 //	calcule_distance.cpp
 //	on a juste besoin d'appeler swap_old ou swap_new, ils'ocupe du renste
 void CallBackFunc(int event, int x, int y, int flags, void* userdata);
@@ -74,4 +85,5 @@ void		draw_lines(t_centre *new_ball, t_centre *old_ball, int nb_ball, Mat *img);
 
 
 void	losted_zone(t_centre *new_ball, t_centre *old_ball);
+void	multi_sound(t_centre *zone);
 #endif
