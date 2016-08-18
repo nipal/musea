@@ -1,6 +1,6 @@
 #ifndef FOLOWING_HPP 
  #define PRECISION 30 
- #define TIME_INTERVAL 10
+ #define TIME_INTERVAL 5
  #define FOLOWING_HPP
  #define MAX_BALL  5
  #define SIZE_BALL 50
